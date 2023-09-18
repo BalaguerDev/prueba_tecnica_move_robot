@@ -10,20 +10,20 @@ export class RobotControlador {
     }
 
     public movimientoRobot(req: Request, res: Response): void {
-        // Obtenemos las órdenes del cuerpo de la solicitud HTTP.
-        const ordenes: string = req.body.ordenes;
+        try {
 
-        // Iteramos a través de cada orden recibida y las procesamos.
-        for (const orden of ordenes) {
-            this.procesarOrden(orden);
+            const ordenes: string = req.body.ordenes;
+
+            for (const orden of ordenes) {
+                this.procesarOrden(orden);
+            }
+
+            const { x, y, direccion } = this.robot;
+            res.json({ x, y, direccion });
+
+        } catch (error) {
+            res.status(500).json({ error: 'Error interno' })
         }
-
-        // Respondemos con la posición y dirección final del robot en formato JSON.
-        res.json({
-            x: this.robot.x,
-            y: this.robot.y,
-            direccion: this.robot.direccion,
-        });
     }
 
     private procesarOrden(orden: string): void {
@@ -41,54 +41,34 @@ export class RobotControlador {
     }
 
     private giraIzquierda(): void {
-        switch (this.robot.direccion) {
-            case 'N':
-                this.robot.direccion = 'W';
-                break;
-            case 'W':
-                this.robot.direccion = 'S';
-                break;
-            case 'S':
-                this.robot.direccion = 'E';
-                break;
-            case 'E':
-                this.robot.direccion = 'N';
-                break;
-        }
+        const direcciones: Record<string, 'N' | 'W' | 'S' | 'E'> = {
+            N: 'W',
+            W: 'S',
+            S: 'E',
+            E: 'N',
+        };
+        this.robot.direccion = direcciones[this.robot.direccion];
     }
 
     private giraDerecha(): void {
-        
-        switch (this.robot.direccion) {
-            case 'N':
-                this.robot.direccion = 'E';
-                break;
-            case 'E':
-                this.robot.direccion = 'S';
-                break;
-            case 'S':
-                this.robot.direccion = 'W';
-                break;
-            case 'W':
-                this.robot.direccion = 'N';
-                break;
-        }
+        const direcciones: Record<string, 'N' | 'W' | 'S' | 'E'> = {
+            N: 'E',
+            E: 'S',
+            S: 'W',
+            W: 'N',
+        };
+        this.robot.direccion = direcciones[this.robot.direccion];
     }
 
     private avanzar(): void {
-        switch (this.robot.direccion) {
-            case 'N':
-                this.robot.y = (this.robot.y + 1) % 10;
-                break;
-            case 'S':
-                this.robot.y = (this.robot.y - 1 + 10) % 10;
-                break;
-            case 'E':
-                this.robot.x = (this.robot.x + 1) % 10;
-                break;
-            case 'W':
-                this.robot.x = (this.robot.x - 1 + 10) % 10;
-                break;
-        }
+        const movimientos: Record<string, [number, number]> = {
+            N: [0, 1],
+            S: [0, -1],
+            E: [1, 0],
+            W: [-1, 0],
+        };
+        const [dx, dy] = movimientos[this.robot.direccion];
+        this.robot.x = (this.robot.x + dx + 10) % 10;
+        this.robot.y = (this.robot.y + dy + 10) % 10;
     }
 }
