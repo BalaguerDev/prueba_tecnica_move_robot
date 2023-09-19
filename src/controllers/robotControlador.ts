@@ -1,74 +1,96 @@
 import { Request, Response } from 'express';
-import { RobotModelo } from '../models/robotModelo';
+import { RobotModelo, Direccion } from '../models/robotModelo';
+import { ValidationError } from '../middleware/errorHandler';
 
+// Controlador para el robot
 export class RobotControlador {
-    private robot: RobotModelo;
+  private robot: RobotModelo;
 
-    constructor() {
-        // Inicializamos el robot en la posición inicial (0, 0) mirando al Norte ('N').
-        this.robot = new RobotModelo(0, 0, 'N');
+  constructor() {
+    // Inicializa el robot en la posición inicial (0, 0) mirando al Norte ('N').
+    this.robot = new RobotModelo(0, 0, Direccion.Norte);
+  }
+
+  // Manejo de las solicitudes de movimiento del robot
+  public movimientoRobot(req: Request, res: Response) {
+    try {
+      const ordenes: string = req.body.ordenes;
+      this.procesarOrdenes(ordenes);
+
+      const { x, y, direccion } = this.robot;
+      res.json({ x, y, direccion });
+    } catch (error) {
+      // Manejo de errores personalizado
+      if (error instanceof ValidationError) {
+        return res.status(400).json({ error: error.message });
+      }
+      // Error interno del servidor
+      return res.status(500).json({ error: 'Error interno' });
     }
+  }
 
-    public movimientoRobot(req: Request, res: Response): void {
-        try {
-
-            const ordenes: string = req.body.ordenes;
-
-            for (const orden of ordenes) {
-                this.procesarOrden(orden);
-            }
-
-            const { x, y, direccion } = this.robot;
-            res.json({ x, y, direccion });
-
-        } catch (error) {
-            res.status(500).json({ error: 'Error interno' })
-        }
+  // Procesa las órdenes enviadas al robot
+  private procesarOrdenes(ordenes: string) {
+    for (const orden of ordenes) {
+      if (!this.ejecutarOrden(orden)) {
+        // Si la orden no es válida, lanza una excepción
+        throw new ValidationError('Orden no válida. Por favor, verifica las órdenes.');
+      }
     }
+  }
 
-    private procesarOrden(orden: string): void {
-        // Utilizamos un objeto de mapeo para determinar qué acción tomar en función de la orden.
-        const acciones: Record<string, () => void> = {
-            L: () => this.giraIzquierda(),
-            R: () => this.giraDerecha(),
-            M: () => this.avanzar(),
-        };
+  // Ejecuta una orden para el robot
+  private ejecutarOrden(orden: string): boolean {
+    // Define las acciones posibles y las ejecuta
+    const acciones: Record<string, () => boolean> = {
+      L: () => this.giraIzquierda(),
+      R: () => this.giraDerecha(),
+      M: () => this.avanzar(),
+    };
 
-        // Verificamos si la orden es válida y ejecutamos la acción correspondiente.
-        if (acciones.hasOwnProperty(orden)) {
-            acciones[orden]();
-        }
+    if (acciones.hasOwnProperty(orden)) {
+      // Ejecuta la acción y devuelve true si es válida
+      return acciones[orden]();
     }
+    // Si la orden no es válida, devuelve false
+    return false;
+  }
 
-    private giraIzquierda(): void {
-        const direcciones: Record<string, 'N' | 'W' | 'S' | 'E'> = {
-            N: 'W',
-            W: 'S',
-            S: 'E',
-            E: 'N',
-        };
-        this.robot.direccion = direcciones[this.robot.direccion];
-    }
+  // Gira el robot a la izquierda
+  private giraIzquierda(): boolean {
+    const direcciones: Record<Direccion, Direccion> = {
+      [Direccion.Norte]: Direccion.Oeste,
+      [Direccion.Oeste]: Direccion.Sur,
+      [Direccion.Sur]: Direccion.Este,
+      [Direccion.Este]: Direccion.Norte,
+    };
+    this.robot.direccion = direcciones[this.robot.direccion];
+    return true; 
+  }
 
-    private giraDerecha(): void {
-        const direcciones: Record<string, 'N' | 'W' | 'S' | 'E'> = {
-            N: 'E',
-            E: 'S',
-            S: 'W',
-            W: 'N',
-        };
-        this.robot.direccion = direcciones[this.robot.direccion];
-    }
+  // Gira el robot a la derecha
+  private giraDerecha(): boolean {
+    const direcciones: Record<Direccion, Direccion> = {
+      [Direccion.Norte]: Direccion.Este,
+      [Direccion.Este]: Direccion.Sur,
+      [Direccion.Sur]: Direccion.Oeste,
+      [Direccion.Oeste]: Direccion.Norte,
+    };
+    this.robot.direccion = direcciones[this.robot.direccion];
+    return true; 
+  }
 
-    private avanzar(): void {
-        const movimientos: Record<string, [number, number]> = {
-            N: [0, 1],
-            S: [0, -1],
-            E: [1, 0],
-            W: [-1, 0],
-        };
-        const [dx, dy] = movimientos[this.robot.direccion];
-        this.robot.x = (this.robot.x + dx + 10) % 10;
-        this.robot.y = (this.robot.y + dy + 10) % 10;
-    }
+  // Avanza el robot en la dirección actual
+  private avanzar(): boolean {
+    const movimientos: Record<Direccion, [number, number]> = {
+      [Direccion.Norte]: [0, 1],
+      [Direccion.Sur]: [0, -1],
+      [Direccion.Este]: [1, 0],
+      [Direccion.Oeste]: [-1, 0],
+    };
+    const [dx, dy] = movimientos[this.robot.direccion];
+    this.robot.x = (this.robot.x + dx + 10) % 10;
+    this.robot.y = (this.robot.y + dy + 10) % 10;
+    return true; 
+  }
 }

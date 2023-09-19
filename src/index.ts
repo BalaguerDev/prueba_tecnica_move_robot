@@ -1,16 +1,16 @@
 import express from 'express';
-import { RobotControlador } from './controllers/robotControlador';
 import robotRutas from './routes/robotRutas';
+import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
-const port = 3000;
-const robotControlador = new RobotControlador();
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-
 app.use('/api/robot', robotRutas);
 
+app.use(errorHandler);
+
 app.listen(port, () => {
-    console.log(`Servidor corriendo en puerto ${port}`);
+  console.log(`Servidor corriendo en puerto ${port}`);
 });
