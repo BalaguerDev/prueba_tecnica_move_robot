@@ -82,15 +82,21 @@ export class RobotControlador {
 
   // Avanza el robot en la dirección actual
   private avanzar(): boolean {
+    // Define un objeto 'movimientos' que mapea las direcciones a sus respectivos desplazamientos en (x, y).
     const movimientos: Record<Direccion, [number, number]> = {
-      [Direccion.Norte]: [0, 1],
-      [Direccion.Sur]: [0, -1],
-      [Direccion.Este]: [1, 0],
-      [Direccion.Oeste]: [-1, 0],
+      [Direccion.Norte]: [0, 1],      // Mover hacia el Norte incrementa la coordenada 'y' en 1.
+      [Direccion.Sur]: [0, -1],       // Mover hacia el Sur decrementa la coordenada 'y' en 1.
+      [Direccion.Este]: [1, 0],       // Mover hacia el Este incrementa la coordenada 'x' en 1.
+      [Direccion.Oeste]: [-1, 0],     // Mover hacia el Oeste decrementa la coordenada 'x' en 1.
     };
+  
+    // Obtén el desplazamiento (dx, dy) correspondiente a la dirección actual del robot.
     const [dx, dy] = movimientos[this.robot.direccion];
+  
+    // Calcula la nueva posición del robot asegurándote de que esté en un rango de 0 a 9 (cuadrícula 10x10).
     this.robot.x = (this.robot.x + dx + 10) % 10;
     this.robot.y = (this.robot.y + dy + 10) % 10;
-    return true; 
+  
+    return true;
   }
 }
