@@ -4,9 +4,11 @@ import Joi from 'joi';
 
 // Define un esquema de validación utilizando Joi
 const ordenesSchema = Joi.string()
+  //[FEEDBACK](mejora): La app debería poder soportar los carácteres correctos en minúscula
   .regex(/^[MLR]*$/)
   .message('Orden no válida. Solo se permiten los caracteres M, L y R.')
   .custom((value: string) => {
+    //[FEEDBACK](error): Validación no requerida en la prueba, no hay motivo para no poder girar completamente el robot.
     if (/(L{4,}|R{4,})/.test(value)) {
       throw new Error('Orden no válida. No está permitido ingresar 4 cambios de sentido igual ya que el robot mira hacia el mismo destino');
     }

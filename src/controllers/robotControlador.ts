@@ -17,6 +17,7 @@ export class RobotControlador {
       const ordenes: string = req.body.ordenes;
       this.procesarOrdenes(ordenes);
 
+      //[FEEDBACK](error): formato de output incorrecto
       const { x, y, direccion } = this.robot;
       res.json({ x, y, direccion });
     } catch (error) {
@@ -30,6 +31,7 @@ export class RobotControlador {
   }
 
   // Procesa las órdenes enviadas al robot
+  //[FEEDBACK](mejora): Este metodo en una arquitectura mejorada, formaría parte de los servicios.
   private procesarOrdenes(ordenes: string) {
     for (const orden of ordenes) {
       if (!this.ejecutarOrden(orden)) {
@@ -40,6 +42,7 @@ export class RobotControlador {
   }
 
   // Ejecuta una orden para el robot
+  //[FEEDBACK](mejora): Este metodo en una arquitectura mejorada, formaría parte de los servicios.
   private ejecutarOrden(orden: string): boolean {
     // Define las acciones posibles y las ejecuta
     const acciones: Record<string, () => boolean> = {
@@ -57,7 +60,9 @@ export class RobotControlador {
   }
 
   // Gira el robot a la izquierda
+  //[FEEDBACK](mejora): Este debería ser un método del modelo del robot no del controlador 
   private giraIzquierda(): boolean {
+    //[FEEDBACK](mejora): Las direcciones son la propiedad del robot, este array debería llamarse "rotacionesIzquierda"
     const direcciones: Record<Direccion, Direccion> = {
       [Direccion.Norte]: Direccion.Oeste,
       [Direccion.Oeste]: Direccion.Sur,
@@ -69,7 +74,9 @@ export class RobotControlador {
   }
 
   // Gira el robot a la derecha
+  //[FEEDBACK](mejora): Este debería ser un método del modelo del robot no del controlador
   private giraDerecha(): boolean {
+    //[FEEDBACK](mejora): Las direcciones son la propiedad del robot, este array debería llamarse "rotacionesDerecha"
     const direcciones: Record<Direccion, Direccion> = {
       [Direccion.Norte]: Direccion.Este,
       [Direccion.Este]: Direccion.Sur,
@@ -81,6 +88,7 @@ export class RobotControlador {
   }
 
   // Avanza el robot en la dirección actual
+  //[FEEDBACK](mejora): Este debería ser un método del modelo del robot no del controlador
   private avanzar(): boolean {
     // Define un objeto 'movimientos' que mapea las direcciones a sus respectivos desplazamientos en (x, y).
     const movimientos: Record<Direccion, [number, number]> = {
@@ -90,6 +98,7 @@ export class RobotControlador {
       [Direccion.Oeste]: [-1, 0],     // Mover hacia el Oeste decrementa la coordenada 'x' en 1.
     };
   
+    //[FEEDBACK](mejora): Hay que usar variables con nombres descriptivos, las variables deberían ser "desplazamientoX" y "desplazamientoY"
     // Obtén el desplazamiento (dx, dy) correspondiente a la dirección actual del robot.
     const [dx, dy] = movimientos[this.robot.direccion];
   
