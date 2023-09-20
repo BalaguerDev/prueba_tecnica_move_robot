@@ -1,0 +1,21 @@
+Se añadirá todo el feedback oportuno sobre esta prueba en comentarios en el código marcados con el tag [FEEDBACK]({type}).
+Y los comentarios generales sobre el proyecto se pondrán en este documento.
+
+Errores:
+1- El proyecto no cuenta con un archivo de .gitignore
+2- Se ha añadido el directorio node_modules como parte del repositorio, es totalmente innecesario y puede provocar problemas.
+3- Al existir el directorio node_modules, estos no se regeneran al hacer un "npm install" y algunos modulos como el de jest dan errores de permiso
+4- El puerto indicado en el archivo README.md no es el que se usa en el código
+5- No hay archivo de ejemplo de .env
+6- No se indica la necesidad de instalar "ts-node" para poder arrancar el proyecto
+7- Los formatos del input y el output del proyecto no son los requeridos en la prueba.
+
+Mejoras:
+1- Usar Docker para encapsular el proyecto y facilitar el despliegue y uso de este
+
+
+Positivio:
+1- Existe documentación del proyecto, aunque sea mejorable
+2- Arquitectura MVC bien aplicada
+3- Se ha implementado testing en el proyecto, aunque se tendría que haber hecho algún test más complejo,
+ como por ejemplo el método ejecutarOrden así como algun test que validara el control de errores
